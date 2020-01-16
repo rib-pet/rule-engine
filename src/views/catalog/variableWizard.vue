@@ -141,6 +141,7 @@ import VariableForm from "@/components/VariableForm";
 import ReTable from "@/components/ReTable";
 import _ from "lodash";
 import { TYPE, TYPE_RESULT } from "@/config/constants";
+
 export default {
   name: "Catalog",
   components: { VariableForm, ReTable },
@@ -166,9 +167,7 @@ export default {
       },
       selectedVariableRows: [],
       selectedVariableCatalogRows: [],
-      variableCatalogs: JSON.parse(
-        JSON.stringify(this.$store.getters.variableCatalogs)
-      )
+      variableCatalogs: _.cloneDeep(this.$store.getters.variableCatalogs)
     };
   },
   computed: {

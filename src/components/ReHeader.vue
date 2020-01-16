@@ -20,7 +20,7 @@
           "
         ></i>
       </li>
-      <el-menu-item index="/">Dashboard</el-menu-item>
+      <el-menu-item index="/dashboard">Dashboard</el-menu-item>
       <li class="execute-btn fr" v-if="$route.path === '/workspace/product'">
         <el-button type="primary">Execute</el-button>
       </li>
@@ -60,5 +60,6 @@ export default {
   border-right: 1px solid #909090;
   width: 65px;
   text-align: center;
+  outline: none;
 }
 </style>

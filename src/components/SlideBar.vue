@@ -1,8 +1,8 @@
 <template>
-  <el-aside :width="isCollapse ? '65px' : '200px'">
+  <el-aside :width="isCollapse ? '65px' : '200px'" class="aside">
     <el-menu
       router
-      default-active="1-4-1"
+      :default-active="$route.path"
       class="slide-bar-menu"
       @open="handleOpen"
       @close="handleClose"
@@ -48,7 +48,10 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
+.aside {
+  transition: 500ms all ease-in-out;
+}
 .slide-bar-menu {
   min-height: calc(~"100vh - 133px");
 }
