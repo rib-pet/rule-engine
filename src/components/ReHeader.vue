@@ -57,7 +57,7 @@ export default {
   line-height: 60px;
   float: left;
   color: #fff;
-  border-right: 1px solid #e6e6e6;
+  border-right: 1px solid #909090;
   width: 65px;
   text-align: center;
 }

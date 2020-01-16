@@ -13,6 +13,7 @@
       ref="table"
       :data="tableData"
       :height="300"
+      :highlight-current-row="highlightCurrentRow"
       @current-change="handleCurrentChange"
       @selection-change="handleSelectionChange"
     >
@@ -32,7 +33,7 @@
 <script>
 export default {
   name: "RETable",
-  props: ["tableData", "title", "highlight-current-row"],
+  props: ["tableData", "title", "highlightCurrentRow"],
   methods: {
     handleCurrentChange(val) {
       this.$emit("current-change", val);

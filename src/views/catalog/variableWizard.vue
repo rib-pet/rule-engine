@@ -3,7 +3,7 @@
     <h4 class="page-title">Varible Wizard</h4>
 
     <el-container>
-      <el-row style="width: 100%;">
+      <el-row style="width: 100%;" :gutter="15">
         <el-col :md="8">
           <re-table
             :table-data="variableCatalogs"
@@ -15,7 +15,9 @@
           >
             <template v-slot:header>
               <div class="header-opt">
-                <el-button type="primary">Add</el-button>
+                <el-button type="primary" @click="showVariableCatalogDialog"
+                  >Add</el-button
+                >
                 <el-button
                   type="primary"
                   @click="handleVariableCatalogDelete"
@@ -41,7 +43,9 @@
             >
               <template v-slot:header>
                 <div class="header-opt">
-                  <el-button type="primary">Add</el-button>
+                  <el-button type="primary" @click="showVairableFormDialog"
+                    >Add</el-button
+                  >
                   <el-button
                     type="primary"
                     @click="handleVariableDelete"
@@ -65,9 +69,10 @@
               </el-table-column>
             </re-table>
 
-            <variable-form-review
+            <variable-form
+              title="Variable Form Review"
               :variable-child="currentVariableRowChildren"
-            ></variable-form-review>
+            ></variable-form>
           </div>
           <div v-else class="right-panel">
             Please select.
@@ -75,20 +80,90 @@
         </el-col>
       </el-row>
     </el-container>
+
+    <el-dialog title="Variable Catalog Form" :visible.sync="isShowFormDialog">
+      <el-form :model="variableCatalogTmp" ref="ruleForm" label-width="120px">
+        <el-form-item label="Code">
+          <el-input v-model="variableCatalogTmp.code" readonly></el-input>
+        </el-form-item>
+        <el-form-item label="Description">
+          <el-input v-model="variableCatalogTmp.description"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="isShowFormDialog = false">NO</el-button>
+        <el-button type="primary" @click="submitAddVariableCatalog"
+          >YES</el-button
+        >
+      </div>
+    </el-dialog>
+
+    <el-dialog
+      title="Variable Parameter Form"
+      :visible.sync="isShowVairableFormDialog"
+    >
+      <el-form :model="variableTmp" ref="ruleForm" label-width="120px">
+        <el-form-item label="Code">
+          <el-input v-model="variableTmp.code"></el-input>
+        </el-form-item>
+        <el-form-item label="Description">
+          <el-input v-model="variableTmp.description"></el-input>
+        </el-form-item>
+        <el-form-item label="Type">
+          <el-select v-model="variableTmp.type" placeholder="Please Select">
+            <el-option
+              v-for="item in TYPE"
+              :key="item.key"
+              :label="item.key"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Formula" v-if="variableTmp.type === TYPE_RESULT">
+          <el-input v-model="variableTmp.formula"></el-input>
+        </el-form-item>
+        <el-form-item label="Readonly">
+          <el-switch v-model="variableTmp.readonly"> </el-switch>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="isShowVairableFormDialog = false">NO</el-button>
+        <el-button type="primary" @click="submitVariableParameter"
+          >YES</el-button
+        >
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import VariableFormReview from "@/components/VariableFormReview";
+import VariableForm from "@/components/VariableForm";
 import ReTable from "@/components/ReTable";
-// import { mapGetters } from "vuex";
+import _ from "lodash";
+import { TYPE, TYPE_RESULT } from "@/config/constants";
 export default {
   name: "Catalog",
-  components: { VariableFormReview, ReTable },
+  components: { VariableForm, ReTable },
   data() {
     return {
-      isShowEditDialog: false,
+      isShowFormDialog: false,
+      isShowVairableFormDialog: false,
       currentVariableRow: null,
+      TYPE,
+      TYPE_RESULT,
+      variableCatalogTmp: {
+        code: "",
+        description: "",
+        children: []
+      },
+      variableTmp: {
+        code: "",
+        description: "",
+        formula: "",
+        value: "",
+        type: "",
+        readonly: false
+      },
       selectedVariableRows: [],
       selectedVariableCatalogRows: [],
       variableCatalogs: JSON.parse(
@@ -105,10 +180,64 @@ export default {
     }
   },
   methods: {
+    showVairableFormDialog() {
+      this.isShowVairableFormDialog = true;
+      this.variableTmp = {
+        code: "",
+        description: "",
+        formula: "",
+        value: "",
+        type: "",
+        readonly: false
+      };
+    },
+    // show Variable Catalog form dialog
+    showVariableCatalogDialog() {
+      this.variableCatalogTmp = {
+        code: _.uniqueId("VC_"),
+        description: "",
+        children: []
+      };
+      this.isShowFormDialog = true;
+    },
     handleCatalogSelectionChange(val) {
       this.selectedVariableCatalogRows = val;
     },
-    handleVariableCatalogEdit() {},
+    submitAddVariableCatalog() {
+      let index = this.variableCatalogs.findIndex(
+        item => item.code === this.variableCatalogTmp.code
+      );
+      if (index !== -1) {
+        this.variableCatalogs.splice(
+          index,
+          1,
+          _.cloneDeep(this.variableCatalogTmp)
+        );
+      } else {
+        this.variableCatalogs.push(_.cloneDeep(this.variableCatalogTmp));
+      }
+      this.isShowFormDialog = false;
+    },
+    submitVariableParameter() {
+      let index = this.currentVariableRow.children.findIndex(
+        item => item.code === this.variableTmp.code
+      );
+      if (index !== -1) {
+        this.currentVariableRow.children.splice(
+          index,
+          1,
+          _.cloneDeep(this.variableTmp)
+        );
+      } else {
+        this.currentVariableRow.children.push(_.cloneDeep(this.variableTmp));
+      }
+      this.$store.dispatch("updateVariable", this.currentVariableRow);
+      this.isShowVairableFormDialog = false;
+    },
+    handleVariableCatalogEdit({ row }) {
+      this.variableCatalogTmp = _.cloneDeep(row);
+      this.isShowFormDialog = true;
+    },
     handleSelectionChange(val) {
       this.selectedVariableRows = val;
     },
@@ -116,7 +245,8 @@ export default {
       this.currentVariableRow = val;
     },
     handleVariableEdit({ row }) {
-      console.log(row);
+      this.variableTmp = _.cloneDeep(row);
+      this.isShowVairableFormDialog = true;
     },
     handleVariableCatalogDelete() {
       this.$confirm("The item will be deleted forever?", "Warning", {
@@ -124,21 +254,32 @@ export default {
         cancelButtonText: "No",
         type: "warning"
       })
-        .then(() => {})
+        .then(() => {
+          this.variableCatalogs = this.variableCatalogs.filter(item => {
+            return !this.selectedVariableCatalogRows.some(
+              item2 => item2.code === item.code
+            );
+          });
+          this.$store.dispatch("updateVariable", this.variableCatalogs);
+        })
         .catch(() => {});
     },
-    handleVariableDelete(scope) {
-      let { $index } = scope;
+    handleVariableDelete() {
+      // let { $index } = scope;
       this.$confirm("The item will be deleted forever?", "Warning", {
         confirmButtonText: "Yes",
         cancelButtonText: "No",
         type: "warning"
       })
         .then(() => {
-          // console.log($index);
-
-          this.currentVariableRow.children.splice($index, 1);
-          this.$store.dispatch("updateVariable", this.currentVariableRow);
+          this.currentVariableRow.children = this.currentVariableRow.children.filter(
+            item => {
+              return !this.selectedVariableRows.some(
+                item2 => item2.code === item.code
+              );
+            }
+          );
+          this.$store.dispatch("updateVariable", this.variableCatalogs);
         })
         .catch(() => {});
     }
@@ -148,7 +289,6 @@ export default {
 
 <style lang="less" scoped>
 .right-panel {
-  margin-left: 15px;
   padding: 15px;
   background-color: #faf9f3;
   min-height: calc(~"100vh - 262px");
