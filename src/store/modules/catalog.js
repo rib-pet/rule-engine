@@ -5,8 +5,8 @@ const state = {
       description: "aaaaaa",
       children: [
         {
-          code: "min",
-          description: "Min",
+          code: "minAge",
+          description: "Min Age:",
           formula: "",
           value: "",
           type: "number",
@@ -14,7 +14,7 @@ const state = {
         },
         {
           code: "max",
-          description: "Max",
+          description: "Max Age:",
           formula: "",
           value: "",
           type: "number",
@@ -22,7 +22,15 @@ const state = {
         },
         {
           code: "issueAge",
-          description: "Issue Age",
+          description: "Issue Age:",
+          formula: "",
+          value: "",
+          type: "number",
+          readonly: false
+        },
+        {
+          code: "issueAgeResult",
+          description: "",
           formula: "issueAge >= min && issueAge <= max",
           value: "",
           type: "result",
