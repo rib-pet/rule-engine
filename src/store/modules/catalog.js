@@ -2,7 +2,7 @@ const state = {
   variableCatalogs: [
     {
       code: 1,
-      description: "aaaaaa",
+      description: "Issue age ",
       children: [
         {
           code: "minAge",
@@ -13,7 +13,7 @@ const state = {
           readonly: false
         },
         {
-          code: "max",
+          code: "maxAge",
           description: "Max Age:",
           formula: "",
           value: "",
@@ -40,11 +40,11 @@ const state = {
     },
     {
       code: 2,
-      description: "bbb",
+      description: "VIP Checking",
       children: [
         {
-          code: "1111",
-          description: "1111",
+          code: "isVip",
+          description: "Is Vip?",
           formula: "",
           type: "number"
         }
