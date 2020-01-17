@@ -12,7 +12,7 @@
     <el-table
       ref="table"
       :data="tableData"
-      :height="300"
+      :height="height"
       :highlight-current-row="highlightCurrentRow"
       @current-change="handleCurrentChange"
       @selection-change="handleSelectionChange"
@@ -33,7 +33,7 @@
 <script>
 export default {
   name: "RETable",
-  props: ["tableData", "title", "highlightCurrentRow"],
+  props: ["tableData", "title", "highlightCurrentRow", "height"],
   methods: {
     handleCurrentChange(val) {
       this.$emit("current-change", val);

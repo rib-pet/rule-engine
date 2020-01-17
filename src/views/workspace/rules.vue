@@ -38,6 +38,7 @@
         <el-col :md="14">
           <div class="right-panel" v-if="currentRuleRowChildren">
             <variable-form
+              :execute-result="true"
               title="Variable Form"
               :variable-child="currentRuleRowChildren"
               @save="handleFormSave"
@@ -140,7 +141,7 @@ export default {
     },
     handleAddRule() {
       this.currentRuleTmp = {
-        code: _.uniqueId("R_"),
+        code: "R_" + _.now(),
         description: "",
         variableCatalogCode: ""
       };

@@ -1,6 +1,15 @@
 <template>
   <div class="catalog-index">
-    <h4 class="page-title">Product</h4>
+    <h4 class="page-title el-row--flex is-justify-space-between">
+      <span>Product</span>
+      <el-button
+        type="primary"
+        :disabled="!currentProductRow"
+        @click="execHandle"
+        :loading="isExecuting"
+        >Execute</el-button
+      >
+    </h4>
 
     <el-container>
       <el-row style="width: 100%;" :gutter="15">
@@ -40,10 +49,50 @@
         <el-col :md="14">
           <div class="right-panel" v-if="currentProductRowChildren">
             <variable-form
-              title="Variable Form"
+              class="mb-15"
+              title="Product Variable Form"
               :variable-child="currentProductRowChildren"
               @save="handleFormSave"
             ></variable-form>
+
+            <re-table
+              title="Project Rule"
+              :table-data="currentProductRuleList"
+              @selection-change="handlePRSelectionChange"
+              @row-edit="handlePREdit"
+              @row-delete="handlePRDelete"
+            >
+              <template v-slot:header>
+                <div class="header-opt">
+                  <el-button type="primary" @click="handleAddPR">Add</el-button>
+                  <el-button
+                    type="primary"
+                    @click="handlePRDelete"
+                    :disabled="!selectedPRRows.length"
+                    >Delete
+                  </el-button>
+                </div>
+              </template>
+
+              <el-table-column prop="code" label="Code"> </el-table-column>
+              <el-table-column label="Rule">
+                <template slot-scope="{ row }">
+                  {{ row.rule.description }}
+                </template>
+              </el-table-column>
+              <el-table-column label="Product">
+                <template slot-scope="{ row }">
+                  {{ row.product.description }}
+                </template>
+              </el-table-column>
+              <el-table-column prop="description" label="Description">
+              </el-table-column>
+              <el-table-column label="Result">
+                <template slot-scope="{ row }">
+                  {{ execRes[row.code] || "-" }}
+                </template>
+              </el-table-column>
+            </re-table>
           </div>
           <div v-else class="right-panel">
             Please select.
@@ -79,6 +128,37 @@
         <el-button type="primary" @click="submitAddProduct">YES</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog title="Product Rule Form" :visible.sync="isShowPRFormDialog">
+      <el-form :model="currentPRTmp" label-width="120px">
+        <el-form-item label="Code">
+          <el-input v-model="currentPRTmp.code" readonly></el-input>
+        </el-form-item>
+        <el-form-item label="Product Code">
+          <el-input v-model="currentPRTmp.productCode" readonly></el-input>
+        </el-form-item>
+        <el-form-item label="Description">
+          <el-input v-model="currentPRTmp.description"></el-input>
+        </el-form-item>
+        <el-form-item label="Rule">
+          <el-select
+            v-model="currentPRTmp.ruleCode"
+            placeholder="Please Select"
+          >
+            <el-option
+              v-for="item in $store.getters.ruleList"
+              :key="item.code"
+              :label="item.description"
+              :value="item.code"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="isShowPRFormDialog = false">NO</el-button>
+        <el-button type="primary" @click="submitAddPR">YES</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -86,21 +166,31 @@
 import VariableForm from "@/components/VariableForm";
 import ReTable from "@/components/ReTable";
 import _ from "lodash";
+import { TYPE_RESULT } from "../../config/constants";
 
 export default {
   name: "Catalog",
   components: { VariableForm, ReTable },
   data() {
     return {
+      isExecuting: false,
       currentProductTmp: {
         code: "",
         description: "",
         variableCatalogCode: ""
       },
+      currentPRTmp: {
+        code: "",
+        ruleCode: "",
+        productCode: "",
+        description: ""
+      },
       isShowFormDialog: false,
+      isShowPRFormDialog: false,
       currentProductRow: null,
-      selectedVariableRows: [],
+      selectedPRRows: [],
       selectedProductRows: [],
+      execRes: {},
       productList: _.cloneDeep(this.$store.getters.productList)
     };
   },
@@ -114,9 +204,54 @@ export default {
         return this.currentProductRow.variableCatalog.children;
       }
       return null;
+    },
+    currentProductRuleList() {
+      if (this.currentProductRow && this.currentProductRow.code) {
+        return this.$store.getters.productRuleList.filter(
+          item => item.productCode === this.currentProductRow.code
+        );
+      }
+      return [];
     }
   },
   methods: {
+    execHandle() {
+      this.isExecuting = true;
+
+      this.currentProductRuleList.forEach(productRule => {
+        let children = productRule.rule.variableCatalog.children;
+        let productChildren = productRule.product.variableCatalog.children;
+        children.forEach(child => {
+          if (child.type === TYPE_RESULT) {
+            let _expression = `"use strict"; return(${child.formula})`;
+
+            productChildren.forEach(productChild => {
+              _expression = _expression.replace(
+                new RegExp(`${productChild.code}`, "g"),
+                productChild.value || 0
+              );
+            });
+
+            children.forEach(child2 => {
+              _expression = _expression.replace(
+                new RegExp(`${child2.code}`, "g"),
+                child2.value || 0
+              );
+            });
+
+            this.$set(this.execRes, productRule.code, Function(_expression)());
+          }
+        });
+      });
+
+      setTimeout(() => {
+        this.isExecuting = false;
+        this.$message({
+          message: "Execute Success!",
+          type: "success"
+        });
+      }, 2000);
+    },
     handleFormSave(data) {
       this.currentProductRow.variableCatalog.children = data;
       this.$store.dispatch("updateProducts", this.productList);
@@ -137,12 +272,11 @@ export default {
       }
 
       this.$store.dispatch("updateProducts", this.productList);
-
       this.isShowFormDialog = false;
     },
     handleAddProduct() {
       this.currentProductTmp = {
-        code: _.uniqueId("P_"),
+        code: "P_" + _.now(),
         description: "",
         variableCatalogCode: ""
       };
@@ -154,9 +288,6 @@ export default {
     handleProductEdit({ row }) {
       this.currentProductTmp = _.cloneDeep(row);
       this.isShowFormDialog = true;
-    },
-    handleSelectionChange(val) {
-      this.selectedVariableRows = val;
     },
     handleCurrentProductChange(val) {
       this.currentProductRow = val;
@@ -176,6 +307,42 @@ export default {
           this.$store.dispatch("updateProducts", this.productList);
         })
         .catch(() => {});
+    },
+    handlePRSelectionChange(val) {
+      this.selectedPRRows = val;
+    },
+    handlePREdit({ row }) {
+      this.currentPRTmp = _.cloneDeep(row);
+      this.isShowPRFormDialog = true;
+    },
+    handlePRDelete() {
+      this.$confirm("The item will be deleted forever?", "Warning", {
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+        type: "warning"
+      })
+        .then(() => {
+          this.$store.getters.productRuleList.forEach((item, index) => {
+            if (this.selectedPRRows.some(item2 => item2.code === item.code)) {
+              this.$store.dispatch("deleteProductRule", index);
+            }
+          });
+        })
+        .catch(() => {});
+    },
+    handleAddPR() {
+      this.currentPRTmp = {
+        code: "PR_" + _.now(),
+        productCode: this.currentProductRow.code,
+        ruleCode: "",
+        description: "",
+        result: ""
+      };
+      this.isShowPRFormDialog = true;
+    },
+    submitAddPR() {
+      this.$store.dispatch("updateProductRule", this.currentPRTmp);
+      this.isShowPRFormDialog = false;
     }
   }
 };

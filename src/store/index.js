@@ -15,5 +15,9 @@ export default new Vuex.Store({
     app,
     catalog
   },
-  plugins: [createPersistedState()]
+  plugins: [
+    createPersistedState({
+      key: "aia-rule-engine"
+    })
+  ]
 });

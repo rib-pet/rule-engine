@@ -1,6 +1,6 @@
 <template>
   <div class="catalog-index">
-    <h4 class="page-title">Varible Wizard</h4>
+    <h4 class="page-title">Variable Wizard</h4>
 
     <el-container>
       <el-row style="width: 100%;" :gutter="15">
@@ -70,6 +70,7 @@
             </re-table>
 
             <variable-form
+              hide-save
               title="Variable Form Review"
               :variable-child="currentVariableRowChildren"
             ></variable-form>
@@ -161,6 +162,7 @@ export default {
         code: "",
         description: "",
         formula: "",
+        sequence: 0,
         value: "",
         type: "",
         readonly: false
@@ -193,7 +195,7 @@ export default {
     // show Variable Catalog form dialog
     showVariableCatalogDialog() {
       this.variableCatalogTmp = {
-        code: _.uniqueId("VC_"),
+        code: "VC_" + _.now(),
         description: "",
         children: []
       };
@@ -215,6 +217,7 @@ export default {
       } else {
         this.variableCatalogs.push(_.cloneDeep(this.variableCatalogTmp));
       }
+      this.$store.dispatch("updateVariableCatalog", this.variableCatalogs);
       this.isShowFormDialog = false;
     },
     submitVariableParameter() {
@@ -230,7 +233,7 @@ export default {
       } else {
         this.currentVariableRow.children.push(_.cloneDeep(this.variableTmp));
       }
-      this.$store.dispatch("updateVariable", this.currentVariableRow);
+      this.$store.dispatch("updateVariableCatalog", this.variableCatalogs);
       this.isShowVairableFormDialog = false;
     },
     handleVariableCatalogEdit({ row }) {
@@ -264,7 +267,6 @@ export default {
         .catch(() => {});
     },
     handleVariableDelete() {
-      // let { $index } = scope;
       this.$confirm("The item will be deleted forever?", "Warning", {
         confirmButtonText: "Yes",
         cancelButtonText: "No",
