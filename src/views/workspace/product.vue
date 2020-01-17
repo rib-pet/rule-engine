@@ -89,7 +89,16 @@
               </el-table-column>
               <el-table-column label="Result">
                 <template slot-scope="{ row }">
-                  {{ execRes[row.code] || "-" }}
+                  <template v-if="typeof execRes[row.code] === 'undefined'">
+                    -
+                  </template>
+                  <template v-else>
+                    <i
+                      class="el-icon-check el-button--text"
+                      v-if="execRes[row.code]"
+                    ></i>
+                    <i class="el-icon-close el-button--text" v-else></i>
+                  </template>
                 </template>
               </el-table-column>
             </re-table>
@@ -217,40 +226,45 @@ export default {
   methods: {
     execHandle() {
       this.isExecuting = true;
-
-      this.currentProductRuleList.forEach(productRule => {
-        let children = productRule.rule.variableCatalog.children;
-        let productChildren = productRule.product.variableCatalog.children;
-        children.forEach(child => {
-          if (child.type === TYPE_RESULT) {
-            let _expression = `"use strict"; return(${child.formula})`;
-
-            productChildren.forEach(productChild => {
-              _expression = _expression.replace(
-                new RegExp(`${productChild.code}`, "g"),
-                productChild.value || 0
-              );
-            });
-
-            children.forEach(child2 => {
-              _expression = _expression.replace(
-                new RegExp(`${child2.code}`, "g"),
-                child2.value || 0
-              );
-            });
-
-            this.$set(this.execRes, productRule.code, Function(_expression)());
-          }
-        });
-      });
-
       setTimeout(() => {
+        this.currentProductRuleList.forEach(productRule => {
+          let children = productRule.rule.variableCatalog.children;
+          let productChildren = productRule.product.variableCatalog.children;
+          children.forEach(child => {
+            if (child.type === TYPE_RESULT) {
+              let _expression = `"use strict"; return(${child.formula})`;
+
+              productChildren.forEach(productChild => {
+                _expression = _expression.replace(
+                  new RegExp(`${productChild.code}`, "g"),
+                  productChild.value || 0
+                );
+              });
+
+              children.forEach(child2 => {
+                _expression = _expression.replace(
+                  new RegExp(`${child2.code}`, "g"),
+                  child2.value || 0
+                );
+              });
+
+              console.log(_expression);
+
+              this.$set(
+                this.execRes,
+                productRule.code,
+                Function(_expression)()
+              );
+            }
+          });
+        });
+
         this.isExecuting = false;
         this.$message({
           message: "Execute Success!",
           type: "success"
         });
-      }, 2000);
+      }, 1000);
     },
     handleFormSave(data) {
       this.currentProductRow.variableCatalog.children = data;

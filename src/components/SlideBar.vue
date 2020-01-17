@@ -5,8 +5,6 @@
       router
       :default-active="$route.path"
       class="slide-bar-menu"
-      @open="handleOpen"
-      @close="handleClose"
       :collapse="isCollapse"
     >
       <li class="menu-title" v-if="!isCollapse">MAIN NAVIGATION</li>
@@ -41,14 +39,6 @@ export default {
   computed: {
     isCollapse() {
       return this.$store.state.app.isExpand;
-    }
-  },
-  methods: {
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath);
     }
   }
 };
