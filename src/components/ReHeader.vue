@@ -1,30 +1,22 @@
 <template>
   <div class="header-wrap">
-    <div class="header-top">
-      <div class="logo">
-        <img src="../assets/imgs/aiawhite-logo.png" alt="" />
-      </div>
+    <div class="logo">
+      <img src="../assets/imgs/aiawhite-logo.png" alt="" />
+      <span>Rule Enginer</span>
     </div>
-    <el-menu
-      :default-active="$route.path"
-      router
-      mode="horizontal"
-      background-color="#596C80"
-      text-color="#fff"
-      active-text-color="#FBBF56"
-    >
-      <li class="menu-collapse" @click="toggleMenuHandle">
+    <div class="header-cont">
+      <el-button
+        class="toggle-menu-btn"
+        type="primary"
+        @click="toggleMenuHandle"
+      >
         <i
           :class="
             $store.state.app.isExpand ? 'el-icon-s-unfold' : 'el-icon-s-fold'
           "
         ></i>
-      </li>
-      <el-menu-item index="/">Dashboard</el-menu-item>
-      <li class="execute-btn fr" v-if="$route.path === '/workspace/product'">
-        <el-button type="primary">Execute</el-button>
-      </li>
-    </el-menu>
+      </el-button>
+    </div>
   </div>
 </template>
 
@@ -40,25 +32,43 @@ export default {
 
 <style lang="less" scoped>
 @import url("../style/vars.less");
-.header-top {
+.header-wrap {
   background-color: @--color-primary;
-  padding: 8px;
+  display: flex;
+  align-items: center;
+}
+.logo {
+  width: 220px;
+  height: 60px;
+  margin-right: 10px;
+  line-height: 60px;
+  color: #909399;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  border-right: 1px solid #bd4b69;
+  span {
+    color: #fff;
+    font-size: 18px;
+  }
   img {
-    width: 50px;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
   }
 }
-.execute-btn {
-  height: 60px;
-  line-height: 60px;
-  padding: 0 20px;
+
+.header-wrap {
+  /deep/ .el-menu-item.is-active {
+    background-color: rgb(169, 14, 55) !important;
+    border-bottom: 0 !important;
+  }
 }
-.menu-collapse {
-  height: 60px;
-  line-height: 60px;
-  float: left;
-  color: #fff;
-  border-right: 1px solid #909090;
-  width: 65px;
-  text-align: center;
+
+.toggle-menu-btn {
+  font-size: 18px;
+  padding: 0.4em;
+  border-radius: 0;
 }
 </style>

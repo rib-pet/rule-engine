@@ -1,8 +1,22 @@
 const state = {
   variableCatalogs: [
     {
-      code: 1,
-      description: "Issue age ",
+      code: "VC1",
+      description: "for_product",
+      children: [
+        {
+          code: "issueAge",
+          description: "Issue Age:",
+          formula: "",
+          value: "",
+          type: "number",
+          readonly: false
+        }
+      ]
+    },
+    {
+      code: "VC2",
+      description: "for_rule",
       children: [
         {
           code: "minAge",
@@ -30,23 +44,11 @@ const state = {
         },
         {
           code: "issueAgeResult",
-          description: "",
-          formula: "issueAge >= min && issueAge <= max",
+          description: "Result",
+          formula: "issueAge >= minAge && issueAge <= maxAge",
           value: "",
           type: "result",
           readonly: true
-        }
-      ]
-    },
-    {
-      code: 2,
-      description: "VIP Checking",
-      children: [
-        {
-          code: "isVip",
-          description: "Is Vip?",
-          formula: "",
-          type: "number"
         }
       ]
     }
@@ -54,14 +56,14 @@ const state = {
 };
 
 const mutations = {
-  UPDATE_VARIABLE: (state, data) => {
+  UPDATE_VARIABLE_CATALOG: (state, data) => {
     state.variableCatalogs = data;
   }
 };
 
 const actions = {
-  updateVariable({ commit }, data) {
-    commit("UPDATE_VARIABLE", data);
+  updateVariableCatalog({ commit }, data) {
+    commit("UPDATE_VARIABLE_CATALOG", data);
   }
 };
 

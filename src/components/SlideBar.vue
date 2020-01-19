@@ -1,13 +1,19 @@
 <template>
-  <el-aside :width="isCollapse ? '65px' : '200px'">
+  <el-aside :width="isCollapse ? '65px' : '220px'" class="aside">
     <el-menu
+      :collapse-transition="false"
       router
-      default-active="1-4-1"
+      :default-active="$route.path"
       class="slide-bar-menu"
       @open="handleOpen"
       @close="handleClose"
       :collapse="isCollapse"
     >
+      <li class="menu-title" v-if="!isCollapse">MAIN NAVIGATION</li>
+      <el-menu-item index="/dashboard">
+        <i class="el-icon-monitor"></i>
+        <span>Dashboard</span>
+      </el-menu-item>
       <el-submenu index="/workspace">
         <template slot="title">
           <i class="el-icon-files"></i>
@@ -48,8 +54,15 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
+.menu-title {
+  background-color: #eee;
+  line-height: 24px;
+  font-size: 12px;
+  text-align: center;
+  color: #666;
+}
 .slide-bar-menu {
-  min-height: calc(~"100vh - 133px");
+  min-height: calc(~"100vh - 65px");
 }
 </style>

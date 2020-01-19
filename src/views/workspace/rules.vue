@@ -38,6 +38,7 @@
         <el-col :md="14">
           <div class="right-panel" v-if="currentRuleRowChildren">
             <variable-form
+              :execute-result="true"
               title="Variable Form"
               :variable-child="currentRuleRowChildren"
               @save="handleFormSave"
@@ -99,7 +100,7 @@ export default {
       currentRuleRow: null,
       selectedVariableRows: [],
       selectedRuleRows: [],
-      ruleList: JSON.parse(JSON.stringify(this.$store.getters.ruleList))
+      ruleList: _.cloneDeep(this.$store.getters.ruleList)
     };
   },
   computed: {
@@ -117,6 +118,7 @@ export default {
   methods: {
     handleFormSave(data) {
       this.currentRuleRow.variableCatalog.children = data;
+      this.$store.dispatch("updateRules", this.ruleList);
     },
     submitAddRule() {
       let index = this.ruleList.findIndex(
@@ -139,7 +141,7 @@ export default {
     },
     handleAddRule() {
       this.currentRuleTmp = {
-        code: _.uniqueId("R_"),
+        code: "R_" + _.now(),
         description: "",
         variableCatalogCode: ""
       };

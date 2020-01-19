@@ -1,5 +1,7 @@
 <template>
-  <div class="dashboard">dash</div>
+  <div class="dashboard">
+    <h4 class="page-title">Dashboard</h4>
+  </div>
 </template>
 
 <script>
