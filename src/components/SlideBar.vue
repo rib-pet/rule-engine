@@ -26,7 +26,7 @@
           <span slot="title">Catalog</span>
         </template>
         <el-menu-item index="/catalog/varible-wizard">
-          Varible Wizard
+          Varible Master
         </el-menu-item>
       </el-submenu>
     </el-menu>

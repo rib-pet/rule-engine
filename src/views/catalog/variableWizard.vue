@@ -1,6 +1,6 @@
 <template>
   <div class="catalog-index">
-    <h4 class="page-title">Variable Wizard</h4>
+    <h4 class="page-title">Variable Master</h4>
 
     <el-container>
       <el-row style="width: 100%;" :gutter="15">
